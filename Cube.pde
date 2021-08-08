@@ -31,7 +31,9 @@ class Cube{
    
    
  }
-  
+ 
+ 
+// test if 2 Cube instances are in the same state
 boolean equals(Cube source){
   boolean equals = true;
   for(int i = 0; i < source.cubelets.length; i++){

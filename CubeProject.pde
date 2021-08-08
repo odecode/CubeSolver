@@ -38,7 +38,7 @@ void setup() {
   //fullScreen(P3D);
   cam = new PeasyCam(this, 400);
  
-  solver = new Solver(cube, allMoves);
+  solver = new Solver();
 }
 
 void draw() {
@@ -47,8 +47,6 @@ void draw() {
   cam.beginHUD();
   fill(255);
   textSize(32);
-  if(scramb) text("scrambling", 100, 100);
-  else text("unscrambling", 100, 100);
   cam.endHUD();
 
   rotateX(-0.5);

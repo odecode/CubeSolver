@@ -31,7 +31,8 @@ void keyPressed() {
   
   else if(key == 'p'){
     sequence.clear(); //<>//
-    sequence = solver.solveBFS();
+    solver = new Solver();
+    sequence = solver.solveBruteForce(cube);
     println("Solution is "+sequence.size()+" moves");
     currentMove = sequence.get(0);
     currentMove.start();

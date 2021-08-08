@@ -6,21 +6,16 @@ class Solver{
   int nodeNums;
   int movesTested;
   boolean solved;
-  Cube cube;
   Test test = new Test();
   Move[] allowedMoves;
   List<Move> allMovesList;
   ArrayList<Move> solution;
   
-  Solver(Cube c, Move[] m){
+  Solver(){
   this.solved = false;
   this.nodeNums = 0;
   this.movesTested = 0;
-  this.cube = c;
-  this.allowedMoves = m;
   this.solution = new ArrayList<Move>();
-  this.allMovesList = Arrays.asList(allowedMoves);
-  
   }
  
   ArrayList<Move> getSolution(){
@@ -32,6 +27,8 @@ class Solver{
    return savedCube;
   }
   
+  
+  
  class Pair{
    Cube cube;
    Move move;
@@ -42,6 +39,13 @@ class Solver{
  }
  
  
+ 
+ /*
+ Nodes in Tree. Each node represents a Cube instance,
+ stored as a Pair, to preserve which Move lead to current Cube instance.
+ Also stores depth if node in tree, and a list of children.
+ 
+ */
  class Node{
      Pair nodePair;
      int depth;
@@ -58,7 +62,7 @@ class Solver{
      return this.children;
    }
    
-   }
+  }// end class Node
    
    
  class Tree{
@@ -72,6 +76,15 @@ class Solver{
      return parent.children;
    }
  
+ 
+   /*
+   Generate Tree data structure of Cube instances.
+   Procedure: Take in Node, create new list of children,
+   create one new Cube for each possible move, apply move,
+   append to children list, for each child create recursively
+   new children. Repeat until maximum depth (amount of moves)
+   is reached.   
+   */
    ArrayList<Node> generateChildren(Node parent, int maxdepth, Cube origCube){
      println(nodeNums);
      ArrayList<Node> children = new ArrayList<Node>();
@@ -101,7 +114,13 @@ class Solver{
    }
    
   
+   /* Traverses tree to search for solved Cube instance.
+   Procedure: Take in (parent) node, get its children, for each child:
+   if child is solved Cube instance, return path of moves that lead to it,
+   else traverse recursively down the children of child. If child has no children
+   and is not solved, remove one Move from potential solution and return to parent.
    
+   */
    ArrayList<Move> traverse(Node node,ArrayList<Move> sltn){
      movesTested++;
      println("entered recursive function");
@@ -131,30 +150,29 @@ class Solver{
        int index = sltn.size()-1;
        sltn.remove(index);
        return sltn;
-     
-    
-     //return sltn;
+ 
      }
    
    
  }// end class Tree
  
- ArrayList<Move> solveBFS(){
-   
-   Tree tree = generateTree();
+ ArrayList<Move> solveBruteForce(Cube cube){
+   this.solution = new ArrayList<Move>();
+   Tree tree = initializeTree(cube); //<>//
    print(tree.root);
    nodeNums = 0;
    movesTested = 0;
-   tree.root.children = tree.generateChildren(tree.root,4, this.cube);
+   tree.root.children = tree.generateChildren(tree.root,4, cube);
    //this.solution = tree.traverse(tree.root, this.solution);
+   
     tree.traverse(tree.root, this.solution);
     println("Generated "+nodeNums+" cube instances");
     println("Tested "+movesTested+" moves");
    return solution;
  }
  
- 
- Tree generateTree(){
+ // Creates root node of Tree data structure
+ Tree initializeTree(Cube cube){
    Pair rootpair = new Pair(cube,null);
    //P = (origCube, move[null])
    //Node root = 
@@ -162,160 +180,5 @@ class Solver{
    return t;  
  }
  
- void printtree(){
-   Tree tree = generateTree();
-   print(tree.root);
-   tree.root.children = tree.generateChildren(tree.root,4,this.cube);
-   print(tree.root.depth);
-   //tree.root.printChildren();
-
  
- }
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- ArrayList<Cube> generateLayer(Cube c){
-   ArrayList<Cube> cubeList = new ArrayList<Cube>();
-   cubeList.add(c);
-   for(Move m : allowedMoves){
-     Cube newCube = new Cube(c);
-     m.updateNoAnimation(newCube);
-     cubeList.add(newCube);
-   }
-   return cubeList;
- 
- }
-  
- //graph of cube states
- ArrayList<ArrayList<Cube>> generateGraph(Cube originalCube){
-   ArrayList<ArrayList<Cube>> cubeGraph = new ArrayList<ArrayList<Cube>>();
-   ArrayList<Cube> firstLayer = new ArrayList<Cube>();
-   firstLayer.add(originalCube);
-   cubeGraph.add(firstLayer);
-   int depth = 0;
-   while(depth < 6){
-       ArrayList<Cube> current = cubeGraph.get(cubeGraph.size()-1);
-       Cube c = new Cube(current.get(0));
-       ArrayList<Cube> layer = generateLayer(c);
-       cubeGraph.add(layer);
-       for(int i = 1; i < layer.size(); i++){
-         Cube cubeNext = layer.get(i);
-         ArrayList<Cube> nextLayer = generateLayer(cubeNext);
-         cubeGraph.add(nextLayer);
-       }
-     depth++;
-   }
-   
-   return cubeGraph;
- }
- 
- 
- void solveDFS(){
-   ArrayList<ArrayList<Cube>> cubeGraph = generateGraph(cube);
-   ArrayList<Move> solution = new ArrayList<Move>();
-   boolean solved = false; 
-   int moveIndex = 0;
-   while(!solved){
-    for(int i = 0; i < cubeGraph.size(); i++){
-      ArrayList<Cube> current = cubeGraph.get(i);
-      Cube c = current.get(0);
-      Move m = allMoves[moveIndex];
-      solution.add(m);
-      
-    } 
-   }
- }
- 
- 
- 
-   
-   
- 
-   
-   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- /* static <E> void permK(List<E> p, int i, int k)
-{
-  if(i == k)
-  {
-    System.out.println(p.subList(0, k));
-    return;
-  }
-
-  for(int j=i; j<p.size(); j++)
-  {
-    Collections.swap(p, i, j);
-    permK(p, i+1, k);    
-    Collections.swap(p, i, j);
-  }
-}
-*/
- /* 
-  void kpermutations(List<Move> list, int i, int k){
-    if(i == k){
-        list = list.subList(0, k);
-        //return n;
-    }
-    
-    for(int j=i; j<list.size(); j++){
-      Collections.swap(list, i, j);
-      kpermutations(list, i+1, k);
-      Collections.swap(list, i, j);
-      //return f;
-    }
-    
-    
-  }//end kpermutations()
-  */
-  /*
-  void solveBFS(){
-    
-     // Cube originalCube = saveState(cube);
-      for(int i = 0; i <= 5; i++){
-          kpermutations(allMovesList, 0, i);
-          for(int n = 0; n < allMovesList.size(); n++){
-            print(allMovesList.get(n).x+" "+allMovesList.get(n).y+" "+allMovesList.get(n).z+" "+allMovesList.get(n).dir);
-            println("");
-          }
-      }
-  
-  }
-  */
-  
-
-
-}//end class
+}//end class Solver
