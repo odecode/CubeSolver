@@ -68,10 +68,11 @@ class Solver{
    }
    
    
-   
+    ArrayList<Node> getChildren(Node parent){
+     return parent.children;
+   }
  
    ArrayList<Node> generateChildren(Node parent, int maxdepth, Cube origCube){
-     nodeNums++;
      println(nodeNums);
      ArrayList<Node> children = new ArrayList<Node>();
      for(Move childMove : allMoves){
@@ -88,22 +89,18 @@ class Solver{
      Node newnode = new Node(parent, childNodePair, parent.depth+1);
       children.add(newnode);  
       }
-      
-         for(Node child:children){
+    }// end for
+    nodeNums+=children.size();
+     for(Node child:children){
         if(child.depth < maxdepth){
         child.children = generateChildren(child, maxdepth, origCube);
         }
       }
-      
-    }
- 
      return children;
  
    }
    
-   ArrayList<Node> getChildren(Node parent){
-     return parent.children;
-   }
+  
    
    ArrayList<Move> traverse(Node node,ArrayList<Move> sltn){
      movesTested++;
@@ -146,7 +143,9 @@ class Solver{
    
    Tree tree = generateTree();
    print(tree.root);
-   tree.root.children = tree.generateChildren(tree.root,3, this.cube);
+   nodeNums = 0;
+   movesTested = 0;
+   tree.root.children = tree.generateChildren(tree.root,4, this.cube);
    //this.solution = tree.traverse(tree.root, this.solution);
     tree.traverse(tree.root, this.solution);
     println("Generated "+nodeNums+" cube instances");
