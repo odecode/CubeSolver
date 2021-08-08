@@ -57,7 +57,7 @@ void draw() {
 
   scale(50);
   if(currentMove != null){
-     currentMove.update();
+     currentMove.update(cube);
   if (currentMove.finished()) {
     if (counter < sequence.size()-1) {
       counter++;

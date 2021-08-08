@@ -19,8 +19,12 @@ class Cube{
    
    }// end constructor
   
+  
+  //copy constructor
  Cube(Cube source){
+   
    this.dim = source.dim;
+   cubelets = new Cubelet[dim*dim*dim];
    for(int i = 0; i < source.cubelets.length; i++){
     this.cubelets[i] = source.cubelets[i].copy(); 
    }
@@ -28,7 +32,15 @@ class Cube{
    
  }
   
-
+boolean equals(Cube source){
+  boolean equals = true;
+  for(int i = 0; i < source.cubelets.length; i++){
+    if(source.cubelets[i].x != this.cubelets[i].x || source.cubelets[i].y != this.cubelets[i].y || source.cubelets[i].y != this.cubelets[i].y || source.cubelets[i].y != this.cubelets[i].y){
+      equals = false;
+    }    
+  }
+    return equals;
+}
   
 void applyMoves(Move m){
   

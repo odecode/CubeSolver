@@ -1,3 +1,9 @@
+/*
+Class that tests if cube instance is solved
+Test object has an instance of a solved cube to test against
+function isSolved() takes in a cube instance and tests it against default cube to see if its solved, returns boolean
+*/
+
 class Test{
 Cube defaultCube;
   

@@ -7,13 +7,15 @@ class Move {
   boolean animating = false;
   boolean finished = false;
 
+
+  
   Move(int x, int y, int z, int dir) {
     this.x = x;
     this.y = y;
     this.z = z;
     this.dir = dir;
   }
-
+  
   Move copy() {
     return new Move(x, y, z, dir);
   }
@@ -24,7 +26,13 @@ class Move {
     else this.dir = 1;
   }
   
-  
+boolean opposite(Move source){
+  boolean opposite = false;
+  if(source.x == this.x && source.y == this.y && source.z == this.z && source.dir != this.dir){
+    opposite = true;
+  }
+  return opposite;
+}  
 
   void start() {
     animating = true;
@@ -36,7 +44,19 @@ class Move {
     return finished;
   }
 
-  void update() {
+  void updateNoAnimation(Cube c){ //<>//
+        if (abs(z) > 0) {
+          c.turnZ(z, dir);
+        } else if (abs(x) > 0) {
+          c.turnX(x, dir);
+        } else if (abs(y) > 0) {
+          c.turnY(y, dir);
+        }
+    }
+  
+
+
+  void update(Cube c) {
     if (animating) {
       angle += dir * speed;
       if (abs(angle) > HALF_PI) {
@@ -44,11 +64,11 @@ class Move {
         animating = false;
         finished = true;
         if (abs(z) > 0) {
-          cube.turnZ(z, dir);
+          c.turnZ(z, dir);
         } else if (abs(x) > 0) {
-          cube.turnX(x, dir);
+          c.turnX(x, dir);
         } else if (abs(y) > 0) {
-          cube.turnY(y, dir);
+          c.turnY(y, dir);
         }
       }
     }
