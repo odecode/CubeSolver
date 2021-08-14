@@ -8,7 +8,6 @@ int dim = 3;
 Cube cube = new Cube(3);
 Controller cont = new Controller();
 Solver solver;
-
 Test t = new Test();
 Move[] allMoves = new Move[] {
   new Move(0, 1, 0, 1), 
@@ -28,23 +27,22 @@ Move[] allMoves = new Move[] {
 ArrayList<Move> sequence = new ArrayList<Move>();
 int counter = 0;
 boolean scramb = false;
-
+boolean solving = false;
 boolean started = false;
+boolean n = true;
 
 Move currentMove;
 
 void setup() {
-  size(600, 600, P3D);
+  size(800, 800, P3D);
   //fullScreen(P3D);
   cam = new PeasyCam(this, 400);
  
   solver = new Solver();
 }
 
-void draw() {
-  background(51); 
-
-  cam.beginHUD();
+void drawCube(){
+   cam.beginHUD();
   fill(255);
   textSize(32);
   cam.endHUD();
@@ -52,9 +50,7 @@ void draw() {
   rotateX(-0.5);
   rotateY(0.4);
   rotateZ(0.1);
-
-  scale(50);
-  if(currentMove != null){
+if(currentMove != null){
      currentMove.update(cube);
   if (currentMove.finished()) {
     if (counter < sequence.size()-1) {
@@ -85,5 +81,37 @@ void draw() {
      pop();
    }
  }
- 
+
+}
+/*
+void drawTree(){
+ println("entered solving draw");
+    sv.drawTree();
+    solver = new Solver();
+    sequence = solver.solveBruteForce(cube);
+    println("Solution is "+sequence.size()+" moves");
+    solving = false;
+    currentMove = sequence.get(0);
+    currentMove.start();
+    counter = 0;
+}
+*/
+void draw() {
+  background(51); 
+  scale(50);
+  
+  if(solving){
+    n = !n;
+    scale(0.003);
+    cam.setDistance(600);
+    stroke(219);
+    strokeWeight(0.1);
+    solver.sv.drawTree(solver.tree.getTree(),n);
+    
+    //line(-6000,-6000,6000,6000);
+    //circle(0,0,50);
+  }
+  else{
+    drawCube();
+  }// end else (if solving==false)
 }//end draw()

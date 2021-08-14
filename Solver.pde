@@ -10,12 +10,18 @@ class Solver{
   Move[] allowedMoves;
   List<Move> allMovesList;
   ArrayList<Move> solution;
+  SearchVis sv;
+  Tree tree;
+  boolean n = false;
+  
   
   Solver(){
+  this.tree = initializeTree(cube);
   this.solved = false;
   this.nodeNums = 0;
   this.movesTested = 0;
   this.solution = new ArrayList<Move>();
+  this.sv = new SearchVis(this);
   }
  
   ArrayList<Move> getSolution(){
@@ -67,8 +73,10 @@ class Solver{
    
  class Tree{
    Node root;
-   Tree(Pair p){
+   int maxdepth;
+   Tree(Pair p, int mdpt){
      this.root = new Node(null, p, 0);
+     this.maxdepth = mdpt;
    }
    
    
@@ -85,8 +93,8 @@ class Solver{
    new children. Repeat until maximum depth (amount of moves)
    is reached.   
    */
-   ArrayList<Node> generateChildren(Node parent, int maxdepth, Cube origCube){
-     println(nodeNums);
+   ArrayList<Node> generateChildren(Node parent, Cube origCube){
+     //println(nodeNums);
      ArrayList<Node> children = new ArrayList<Node>();
      for(Move childMove : allMoves){
       Cube parentCube = parent.nodePair.cube;
@@ -98,15 +106,17 @@ class Solver{
       if(parent != null && parent.nodePair.move!=null){movesOpposite = childMove.opposite(parent.nodePair.move);}
       
       if(cubesEqual==false && movesOpposite==false){
-      Pair childNodePair = new Pair(childCube,childMove);
-     Node newnode = new Node(parent, childNodePair, parent.depth+1);
-      children.add(newnode);  
-      }
-    }// end for
-    nodeNums+=children.size();
+          Pair childNodePair = new Pair(childCube,childMove);
+          Node newnode = new Node(parent, childNodePair, parent.depth+1);
+          children.add(newnode);  
+        }
+     }// end for
+     nodeNums+=children.size();
      for(Node child:children){
-        if(child.depth < maxdepth){
-        child.children = generateChildren(child, maxdepth, origCube);
+        if(child.depth < this.maxdepth){
+          n = !n;
+          sv.drawTree(this,n); 
+          child.children = generateChildren(child, maxdepth, origCube);
         }
       }
      return children;
@@ -123,7 +133,7 @@ class Solver{
    */
    ArrayList<Move> traverse(Node node,ArrayList<Move> sltn){
      movesTested++;
-     println("entered recursive function");
+     //println("entered recursive function");
      ArrayList<Node> children = node.getChildren();
      if(children != null && solved == false){
        for(Node child:children){
@@ -135,7 +145,7 @@ class Solver{
            return sltn;
          }
          else if(solved==false){
-           println("traversing deeper");
+           //println("traversing deeper");
            sltn = traverse(child,sltn);
          }
        }
@@ -146,23 +156,26 @@ class Solver{
        }
        else if(solved == true){println("returning with solution");return sltn;}
        
-       println("going back up");
+       //println("going back up");
        int index = sltn.size()-1;
        sltn.remove(index);
        return sltn;
  
      }
    
-   
+   Tree getTree(){
+     return this;
+   }
  }// end class Tree
  
  ArrayList<Move> solveBruteForce(Cube cube){
    this.solution = new ArrayList<Move>();
-   Tree tree = initializeTree(cube); //<>//
-   print(tree.root);
+    //<>//
+   //print(tree.root);
+   
    nodeNums = 0;
    movesTested = 0;
-   tree.root.children = tree.generateChildren(tree.root,4, cube);
+   tree.root.children = tree.generateChildren(tree.root, cube);
    //this.solution = tree.traverse(tree.root, this.solution);
    
     tree.traverse(tree.root, this.solution);
@@ -176,7 +189,7 @@ class Solver{
    Pair rootpair = new Pair(cube,null);
    //P = (origCube, move[null])
    //Node root = 
-   Tree t = new Tree(rootpair);
+   Tree t = new Tree(rootpair,4);
    return t;  
  }
  

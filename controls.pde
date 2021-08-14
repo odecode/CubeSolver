@@ -30,13 +30,10 @@ void keyPressed() {
   // applyMove(key);
   
   else if(key == 'p'){
-    sequence.clear(); //<>//
+    solving = !solving;
     solver = new Solver();
-    sequence = solver.solveBruteForce(cube);
-    println("Solution is "+sequence.size()+" moves");
-    currentMove = sequence.get(0);
-    currentMove.start();
-    counter = 0;
+    sequence.clear(); //<>//
+    
   }
   
   else if(key == '2'){
