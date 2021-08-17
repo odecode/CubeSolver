@@ -90,6 +90,16 @@ void keyPressed() {
     boolean solved = t.isSolved(cube);
     print(solved);
   }
+  else if(key == 'x'){
+    Solver.Tree t = solver.initializeTree(cube);
+    t.generateChildren(t.root,cube);
+    ArrayList<Solver.Node> leaves = new ArrayList<Solver.Node>();
+    leaves = t.getLeaves(t.root,leaves);
+    for(Solver.Node n : leaves){
+     println(n.leaf); 
+    }
+    println(leaves.size());
+  }
   
 
 }

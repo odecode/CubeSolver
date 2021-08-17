@@ -12,7 +12,6 @@ class Solver{
   ArrayList<Move> solution;
   SearchVis sv;
   Tree tree;
-  boolean n = false;
   
   
   Solver(){
@@ -52,17 +51,41 @@ class Solver{
  Also stores depth if node in tree, and a list of children.
  
  */
+ 
+ class Layer{
+   Layer parent;
+   Layer child;
+   ArrayList<Node> nodes;
+   int depth;
+   Layer(ArrayList<Node> nodesIn){
+     this.nodes = nodesIn;
+     this.depth = nodesIn.get(0).depth;
+   }
+ }
+ 
  class Node{
      Pair nodePair;
      int depth;
      ArrayList<Node> children;
      Node parent;
+     boolean leaf;
+     ArrayList<Node> chainToParent;
      Node(Node par, Pair inpair, int indepth){
        this.depth = indepth;
        this.parent = par;
        this.children = new ArrayList<Node>();
        this.nodePair = inpair;
+       this.leaf = true;
+       this.chainToParent = new ArrayList<Node>();
      }
+   
+   ArrayList<Node> getToRoot(Node n){
+     if(parent!=null){
+       chainToParent.add(this);
+       chainToParent = getToRoot(parent);
+     }
+     return chainToParent;
+   }
    
    ArrayList<Node> getChildren(){
      return this.children;
@@ -74,18 +97,77 @@ class Solver{
  class Tree{
    Node root;
    int maxdepth;
+   ArrayList<Layer> layers;
    Tree(Pair p, int mdpt){
      this.root = new Node(null, p, 0);
      this.maxdepth = mdpt;
+     this.layers = new ArrayList<Layer>();
    }
    
    
     ArrayList<Node> getChildren(Node parent){
      return parent.children;
    }
+   
+   // generate all subsequent layers
+   Layer generateLayer(Layer parentLayer,Cube origCube){
+      ArrayList<Node> parentNodes = parentLayer.nodes;
+      ArrayList<Node> childNodes = new ArrayList<Node>();
+      for(Node parent : parentNodes){
+        for(Move childMove : allMoves){
+          Cube parentCube = parent.nodePair.cube;
+          Cube childCube = new Cube(parentCube);
+          childMove.start();
+          childMove.updateNoAnimation(childCube);
+          boolean cubesEqual = childCube.equals(origCube);
+          boolean movesOpposite = false;
+          if(parent != null && parent.nodePair.move!=null){movesOpposite = childMove.opposite(parent.nodePair.move);}
+      
+          if(cubesEqual==false && movesOpposite==false){
+            Pair childNodePair = new Pair(childCube,childMove);
+            Node newnode = new Node(parent, childNodePair, parent.depth+1);
+            childNodes.add(newnode);  
+            }
+       }
+      }
+       Layer l = new Layer(childNodes);
+       parentLayer.child = l;
+       l.parent = parentLayer;
+       sv.addNodes(childNodes);
+       return l;
+     }
+   
+   // generate first layer from Root node
+   Layer generateLayer(Cube origCube, Node parent){
+       ArrayList<Node> children = new ArrayList<Node>();
+       for(Move childMove : allMoves){
+          Cube parentCube = parent.nodePair.cube;
+          Cube childCube = new Cube(parentCube);
+          childMove.start();
+          childMove.updateNoAnimation(childCube);
+          boolean cubesEqual = childCube.equals(origCube);
+          boolean movesOpposite = false;
+          if(parent != null && parent.nodePair.move!=null){movesOpposite = childMove.opposite(parent.nodePair.move);}
+      
+          if(cubesEqual==false && movesOpposite==false){
+            Pair childNodePair = new Pair(childCube,childMove);
+            Node newnode = new Node(parent, childNodePair, parent.depth+1);
+            children.add(newnode);  
+            }
+       }
+       Layer l = new Layer(children);
+       l.parent = null;
+       l.child = null;
+       sv.addNodes(children);
+       return l;
+   }
  
+   boolean testCurrentNode(Node currentNode){
+     return test.isSolved(currentNode.nodePair.cube);
+   }
  
    /*
+   !!OLD VERSION!!
    Generate Tree data structure of Cube instances.
    Procedure: Take in Node, create new list of children,
    create one new Cube for each possible move, apply move,
@@ -112,11 +194,12 @@ class Solver{
         }
      }// end for
      nodeNums+=children.size();
+     sv.addNodes(children);
+     if(parent.depth < this.maxdepth){parent.leaf=false;}
      for(Node child:children){
         if(child.depth < this.maxdepth){
-          n = !n;
-          sv.drawTree(this,n); 
-          child.children = generateChildren(child, maxdepth, origCube);
+          
+          child.children = generateChildren(child, origCube);
         }
       }
      return children;
@@ -131,7 +214,20 @@ class Solver{
    and is not solved, remove one Move from potential solution and return to parent.
    
    */
-   ArrayList<Move> traverse(Node node,ArrayList<Move> sltn){
+   ArrayList<Node> getLeaves(Node n, ArrayList<Node> leaves){
+     if(n.leaf){
+       leaves.add(n);
+       return leaves;
+     }
+     else{
+       for(Node child : n.children){
+         leaves = getLeaves(child, leaves);
+       }
+     }
+    return leaves;
+   }
+   
+   ArrayList<Move> traverseSolve(Node node,ArrayList<Move> sltn){
      movesTested++;
      //println("entered recursive function");
      ArrayList<Node> children = node.getChildren();
@@ -146,7 +242,7 @@ class Solver{
          }
          else if(solved==false){
            //println("traversing deeper");
-           sltn = traverse(child,sltn);
+           sltn = traverseSolve(child,sltn);
          }
        }
      }
@@ -168,7 +264,7 @@ class Solver{
    }
  }// end class Tree
  
- ArrayList<Move> solveBruteForce(Cube cube){
+ void solveBruteForce(Cube cube){
    this.solution = new ArrayList<Move>();
     //<>//
    //print(tree.root);
@@ -176,12 +272,18 @@ class Solver{
    nodeNums = 0;
    movesTested = 0;
    tree.root.children = tree.generateChildren(tree.root, cube);
-   //this.solution = tree.traverse(tree.root, this.solution);
+   this.solution = tree.traverseSolve(tree.root, this.solution);
    
-    tree.traverse(tree.root, this.solution);
+    //tree.traverse(tree.root, this.solution);
     println("Generated "+nodeNums+" cube instances");
     println("Tested "+movesTested+" moves");
-   return solution;
+    sequence = this.solution;
+    solving = false;
+    startedAlgorithm = false;
+    currentMove = sequence.get(0);
+    currentMove.start();
+    counter = 0;
+   //return solution;
  }
  
  // Creates root node of Tree data structure
