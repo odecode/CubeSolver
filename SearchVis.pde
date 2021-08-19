@@ -22,7 +22,7 @@ class SearchVis{
     float x;
     float y;
     float degree;
-    int pointWidth = 50;
+    int pointWidth = 15;
     int pointColor;
     int depth;
     Point(float xin, float yin, int clr, Point p, int depthIn){
@@ -103,20 +103,21 @@ class SearchVis{
   }
   
   ArrayList<Point> drawTree(){
-    ArrayList<Point> p = this.points; //<>//
+    ArrayList<Point> p = this.points; //<>// //<>//
     println("drawing tree");
     return this.points;
     // dist 500, width 50, middle (0,0)
-    
+     //<>//
         //<>//
   }// end drawTree
   
   ArrayList<Point> drawCurrentPath(Solver.Node currentNode){
-    for(Point p:this.points){p.pointColor=255;}
+    for(Point p:this.points){p.pointColor=255; p.pointWidth=15;} //<>//
     
     while(currentNode.depth > 0){
       Point cur = nodeToPoint.get(currentNode);
       cur.pointColor=(0);
+      cur.pointWidth=100;
       currentNode = currentNode.parent;
     }
     

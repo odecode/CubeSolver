@@ -38,7 +38,8 @@ Solver.Tree tree;
 Move currentMove;
 
 void setup() {
-  size(800, 800, P3D);
+  fullScreen(P3D);
+  //size(800, 800, P3D);
   //fullScreen(P3D);
   cam = new PeasyCam(this, 400);
   solver = new Solver();
@@ -114,7 +115,7 @@ void generateLayers(){
         int index = layers.size()-1;
         Solver.Layer l = tree.generateLayer(layers.get(index), cube);
         layers.add(l); //<>//
-        ArrayList<SearchVis.Point> treePoints = sv.drawTree();
+        ArrayList<SearchVis.Point> treePoints = sv.drawTree(); //<>//
         for(SearchVis.Point point : treePoints){
           fill(point.pointColor);
           circle(point.x, point.y, point.pointWidth);
