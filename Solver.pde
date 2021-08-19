@@ -119,7 +119,7 @@ class Solver{
    
    // generate all subsequent layers
    Layer generateLayer(Layer parentLayer,Cube origCube){
-      ArrayList<Node> parentNodes = parentLayer.nodes; //<>//
+      ArrayList<Node> parentNodes = parentLayer.nodes;
       ArrayList<Node> childNodes = new ArrayList<Node>();
       for(Node parent : parentNodes){
         for(Move childMove : allMoves){
@@ -297,7 +297,7 @@ class Solver{
  Tree initializeTree(Cube cube){
    Pair rootpair = new Pair(cube,null);
    //P = (origCube, move[null])
-   //Node root = 
+   Node root = new Node(null, rootpair, 0);
    Tree t = new Tree(rootpair,4);
    return t;  
  }

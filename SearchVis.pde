@@ -36,26 +36,42 @@ class SearchVis{
   }
   
   
-  void calculateCoordinates(Solver.Node node){
-    for(Point p : points){
-      if(p.parent == null){
+  void calculateCoordinates(ArrayList<Solver.Node> nodesIn){
+    float degree = 0.0;
+    ArrayList<Point> pointsToCalc = new ArrayList<Point>();
+    for(Solver.Node n : nodesIn){
+      Point p = nodeToPoint.get(n);
+      p.depth = n.depth;
+      pointsToCalc.add(p);
+    }
+    println(pointsToCalc.size());
+    for(Point p : pointsToCalc){
+      if(p.depth == 0){
         p.degree = 0.0;
+        this.points.add(p);
       }
       else if(p.depth == 1){
-        
       
+      int distance = 150;
+      //p.degree = degree;
+      p.x = distance*cos(degree);
+      p.y = distance*sin(degree);
+      degree += 30.0;
+      p.degree = degree;
+      this.points.add(p);
       }
-      
+      else if(p.depth > 1){
+        int distance = 550;
+        Point parent = p.parent; //<>//
+        float pdeg = parent.degree;
+        p.degree = parent.degree - 60.0 + degree;
+        p.x = distance*cos(p.degree)+parent.x;
+        p.y = distance*sin(p.degree)+parent.y;
+        degree += 30;
+        this.points.add(p);
+      }
     }
-    
-    if(node.depth == 0){
-      Point p =  new Point(0,0, 255, null,0);
-      points.add(p);
-    }
-    else{
-      Point p = new Point(0,0,255, null,node.depth);
-      points.add(p);
-    }
+   
   
   }
   
@@ -63,38 +79,49 @@ class SearchVis{
     for(Solver.Node n : nodesIn){
       Point p = new Point(0,0,255,null,n.depth);
       nodeToPoint.put(n,p);
+      println(nodeToPoint.get(n));
       pointToNode.put(p,n);
+      //println("n->p size "+nodeToPoint.size()+ " p->n size "+pointToNode.size());
+      
       nodes.add(n);
     }
+    calcPointParents();
+    calculateCoordinates(nodesIn);
   }
   
   void calcPointParents(){
-    for(Point current:points){
-       Solver.Node pointsNode = pointToNode.get(current);
-       pointsNode = pointsNode.parent;
-       Point currentsParent = nodeToPoint.get(pointsNode);
-       current.parent = currentsParent;
-    }
+    for(Solver.Node n:this.nodes){
+      //println(nodeToPoint.containsKey(n));
+      if(n.depth > 0){
+        Solver.Node nodeparent = n.parent;
+        println(nodeToPoint.containsKey(nodeparent));
+        Point nodepoint = nodeToPoint.get(n);
+        Point nodepointsparent = nodeToPoint.get(nodeparent);
+        nodepoint.parent = nodepointsparent;
+      }
+    } //<>//
   }
   
   ArrayList<Point> drawTree(){
-    
+    ArrayList<Point> p = this.points; //<>//
     println("drawing tree");
-    return points;
+    return this.points;
     // dist 500, width 50, middle (0,0)
     
         //<>//
   }// end drawTree
   
-  ArrayList<Point> drawCurrentPath(){
-    fill(152);
-    circle(120,130,50);
-    //println("drawing path");
+  ArrayList<Point> drawCurrentPath(Solver.Node currentNode){
+    for(Point p:this.points){p.pointColor=255;}
     
-    Point p = new Point(0,0,255,null,0);
-    ArrayList<Point> pt = new ArrayList<Point>();
-    pt.add(p);
-    return pt;
+    while(currentNode.depth > 0){
+      Point cur = nodeToPoint.get(currentNode);
+      cur.pointColor=(0);
+      currentNode = currentNode.parent;
+    }
+    
+    
+    return this.points;
   
   }
 }

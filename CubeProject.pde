@@ -98,7 +98,7 @@ void solvebruteforce(){
 }
 
 void generateLayers(){
-    int maxdepth = 3;
+    int maxdepth = 2;
     if(layerindex == maxdepth){
     reachedSearchStage=true;
     layerindex=99;
@@ -113,11 +113,11 @@ void generateLayers(){
       else{
         int index = layers.size()-1;
         Solver.Layer l = tree.generateLayer(layers.get(index), cube);
-        layers.add(l);
+        layers.add(l); //<>//
         ArrayList<SearchVis.Point> treePoints = sv.drawTree();
         for(SearchVis.Point point : treePoints){
           fill(point.pointColor);
-          circle(point.x, point.y, 50);
+          circle(point.x, point.y, point.pointWidth);
         }
       }
    layerindex++;     
@@ -130,9 +130,9 @@ void searchLayers(){
       
         solved = t.isSolved(n.nodePair.cube);
         if(solved){
-          println("solved"); //<>//
+          println("solved");
           ArrayList<Solver.Node> solutionNodes = new ArrayList<Solver.Node>();
-          while(n.depth > 0){ //<>//
+          while(n.depth > 0){
             //println(n);
             solutionNodes.add(n);
             if(n.parent != null){
@@ -152,11 +152,11 @@ void searchLayers(){
           layerindex = layers.size();
         }
         else{
-          ArrayList<SearchVis.Point> points = sv.drawCurrentPath();
+          ArrayList<SearchVis.Point> points = sv.drawCurrentPath(n);
           for(SearchVis.Point p : points){
             //println("for sv.point p in points");
             fill(p.pointColor);
-            circle(p.x,p.y,50);
+            circle(p.x,p.y,p.pointWidth);
           }
         }
   //println(layernodeindex);     

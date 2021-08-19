@@ -49,7 +49,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '3'){
@@ -60,7 +60,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '4'){
@@ -71,7 +71,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '5'){
@@ -82,7 +82,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
     else if(key == '6'){
@@ -93,7 +93,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+   // print(solved);
   }
   else if(key == 'x'){
     Solver.Tree t = solver.initializeTree(cube);
