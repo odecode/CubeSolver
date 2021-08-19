@@ -32,7 +32,12 @@ void keyPressed() {
   else if(key == 'p'){
     solving = !solving;
     solver = new Solver();
-    sequence.clear(); //<>//
+    sequence.clear();
+    reachedSearchStage = false;
+  layerindex = 0;
+  layernodeindex = 0;
+  layers.clear();
+  tree = solver.initializeTree(cube);
     
   }
   

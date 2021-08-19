@@ -31,9 +31,10 @@ boolean solving = false;
 boolean startedAlgorithm = false;
 boolean started = false;
 int layerindex;
+int layernodeindex;
 boolean reachedSearchStage;
-ArrayList<Solver.Layer> layers = new ArrayList<Solver.Layer>();
-Solver.Tree tree = solver.initializeTree(cube);
+ArrayList<Solver.Layer> layers;
+Solver.Tree tree;
 Move currentMove;
 
 void setup() {
@@ -43,10 +44,14 @@ void setup() {
   solver = new Solver();
   reachedSearchStage = false;
   layerindex = 0;
+  layernodeindex = 0;
+  layers = new ArrayList<Solver.Layer>();
+  tree = solver.initializeTree(cube);
 }
 
 void drawCube(){
-   cam.beginHUD();
+  strokeWeight(1);
+  cam.beginHUD();
   fill(255);
   textSize(32);
   cam.endHUD();
@@ -93,11 +98,15 @@ void solvebruteforce(){
 }
 
 void generateLayers(){
-    int maxdepth = 4;
-    if(layerindex == maxdepth){reachedSearchStage=true;}
+    int maxdepth = 3;
+    if(layerindex == maxdepth){
+    reachedSearchStage=true;
+    layerindex=99;
+    }
     
       if(layerindex==0){
           Solver.Layer l = tree.generateLayer(cube, tree.root);
+          sv = solver.sv;
           layers.add(l);
           sv.drawTree();   
       }
@@ -105,49 +114,82 @@ void generateLayers(){
         int index = layers.size()-1;
         Solver.Layer l = tree.generateLayer(layers.get(index), cube);
         layers.add(l);
-        sv.drawTree();
+        ArrayList<SearchVis.Point> treePoints = sv.drawTree();
+        for(SearchVis.Point point : treePoints){
+          fill(point.pointColor);
+          circle(point.x, point.y, 50);
+        }
       }
    layerindex++;     
  }     
 
 void searchLayers(){
+  Solver.Layer layer = layers.get(layerindex);
   boolean solved = false;
-    for(Solver.Layer layer : layers){
-      if(solved){break;}
-      for(Solver.Node n : layer.nodes){
-        solved = tree.testCurrentNode(n);
+  Solver.Node n = layer.nodes.get(layernodeindex);
+      
+        solved = t.isSolved(n.nodePair.cube);
         if(solved){
-          ArrayList<Solver.Node> solutionNodes = n.getToRoot(n);
-          for(int i = solutionNodes.size()-1; i>0; i--){
-            sequence.add(solutionNodes.get(i).nodePair.move);
+          println("solved"); //<>//
+          ArrayList<Solver.Node> solutionNodes = new ArrayList<Solver.Node>();
+          while(n.depth > 0){ //<>//
+            //println(n);
+            solutionNodes.add(n);
+            if(n.parent != null){
+            n = n.parent;            
+            }
           }
-         solved=true;
-         break;
+         
+          for(int i = solutionNodes.size()-1; i>=0; i--){
+            sequence.add(solutionNodes.get(i).nodePair.move);
+            println("sequence size: "+sequence.size());
+          }
+          for(Solver.Node finalNode : layers.get(0).nodes){
+            if(finalNode.children.contains(n)){
+              sequence.add(0,finalNode.nodePair.move);
+            }
+          }
+          layerindex = layers.size();
         }
         else{
-          sv.drawCurrentPath();
+          ArrayList<SearchVis.Point> points = sv.drawCurrentPath();
+          for(SearchVis.Point p : points){
+            //println("for sv.point p in points");
+            fill(p.pointColor);
+            circle(p.x,p.y,50);
+          }
         }
-       }
-         
-    }
+  //println(layernodeindex);     
+  layernodeindex++;
+  if(layernodeindex == layer.nodes.size()-1){
+  layerindex++;
+  layernodeindex = 0;
+  //println(layerindex);
+  }
+  if(layerindex == layers.size()){
+  println("finishing search");
   solving=false;
   currentMove = sequence.get(0);
   currentMove.start();
   counter = 0;
+  }
+  
 }
 
 
 void draw() {
   background(51); 
   if(solving){
-    scale(0.003);
-    cam.setDistance(600);
+    scale(0.15);
+    //scale(0.003);
+    //cam.setDistance(600);
     stroke(219);
     strokeWeight(0.1);
     if(!reachedSearchStage){
       generateLayers();
     }
     else{
+      if(layerindex > 90){layerindex=0;}
       searchLayers();
     }   
    }

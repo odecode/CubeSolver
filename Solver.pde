@@ -12,6 +12,7 @@ class Solver{
   ArrayList<Move> solution;
   SearchVis sv;
   Tree tree;
+  ArrayList<Node> chainToRoot;
   
   
   Solver(){
@@ -21,6 +22,7 @@ class Solver{
   this.movesTested = 0;
   this.solution = new ArrayList<Move>();
   this.sv = new SearchVis(this);
+  this.chainToRoot = new ArrayList<Node>();
   }
  
   ArrayList<Move> getSolution(){
@@ -69,22 +71,26 @@ class Solver{
      ArrayList<Node> children;
      Node parent;
      boolean leaf;
-     ArrayList<Node> chainToParent;
      Node(Node par, Pair inpair, int indepth){
        this.depth = indepth;
        this.parent = par;
        this.children = new ArrayList<Node>();
        this.nodePair = inpair;
        this.leaf = true;
-       this.chainToParent = new ArrayList<Node>();
+       
      }
    
-   ArrayList<Node> getToRoot(Node n){
-     if(parent!=null){
-       chainToParent.add(this);
-       chainToParent = getToRoot(parent);
+   Node travelUp(Node node){
+     chainToRoot.add(this);
+     Node n = this;
+     if(this.parent != null){
+        n = travelUp(this.parent);
+         return n;
      }
-     return chainToParent;
+     else{
+       return n;
+     }
+     
    }
    
    ArrayList<Node> getChildren(){
@@ -98,10 +104,12 @@ class Solver{
    Node root;
    int maxdepth;
    ArrayList<Layer> layers;
+   ArrayList<Node> chainToRoot;
    Tree(Pair p, int mdpt){
      this.root = new Node(null, p, 0);
      this.maxdepth = mdpt;
      this.layers = new ArrayList<Layer>();
+     this.chainToRoot = new ArrayList<Node>();
    }
    
    
@@ -111,7 +119,7 @@ class Solver{
    
    // generate all subsequent layers
    Layer generateLayer(Layer parentLayer,Cube origCube){
-      ArrayList<Node> parentNodes = parentLayer.nodes;
+      ArrayList<Node> parentNodes = parentLayer.nodes; //<>//
       ArrayList<Node> childNodes = new ArrayList<Node>();
       for(Node parent : parentNodes){
         for(Move childMove : allMoves){
@@ -119,20 +127,19 @@ class Solver{
           Cube childCube = new Cube(parentCube);
           childMove.start();
           childMove.updateNoAnimation(childCube);
-          boolean cubesEqual = childCube.equals(origCube);
-          boolean movesOpposite = false;
-          if(parent != null && parent.nodePair.move!=null){movesOpposite = childMove.opposite(parent.nodePair.move);}
-      
-          if(cubesEqual==false && movesOpposite==false){
-            Pair childNodePair = new Pair(childCube,childMove);
-            Node newnode = new Node(parent, childNodePair, parent.depth+1);
-            childNodes.add(newnode);  
-            }
+          //boolean cubesEqual = childCube.equals(origCube);
+          Pair childNodePair = new Pair(childCube,childMove);
+          Node newnode = new Node(parent, childNodePair, parent.depth+1);
+          parent.children.add(newnode);
+          childNodes.add(newnode); 
+          //println(parent.children.contains(newnode));
+            
        }
       }
+      
        Layer l = new Layer(childNodes);
        parentLayer.child = l;
-       l.parent = parentLayer;
+       l.parent=parentLayer;
        sv.addNodes(childNodes);
        return l;
      }
