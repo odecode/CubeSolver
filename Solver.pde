@@ -127,13 +127,17 @@ class Solver{
           Cube childCube = new Cube(parentCube);
           childMove.start();
           childMove.updateNoAnimation(childCube);
-          //boolean cubesEqual = childCube.equals(origCube);
+          boolean cubesEqual = childCube.equals(origCube);
+          boolean movesOpposite=false;
+          if(parent != null && parent.nodePair.move!=null){movesOpposite = childMove.opposite(parent.nodePair.move);}
+      
+          if(cubesEqual==false && movesOpposite==false){
           Pair childNodePair = new Pair(childCube,childMove);
           Node newnode = new Node(parent, childNodePair, parent.depth+1);
           parent.children.add(newnode);
           childNodes.add(newnode); 
           //println(parent.children.contains(newnode));
-            
+          }
        }
       }
       

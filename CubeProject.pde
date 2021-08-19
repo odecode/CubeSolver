@@ -38,7 +38,8 @@ Solver.Tree tree;
 Move currentMove;
 
 void setup() {
-  size(800, 800, P3D);
+  fullScreen(P3D);
+  //size(800, 800, P3D);
   //fullScreen(P3D);
   cam = new PeasyCam(this, 400);
   solver = new Solver();
@@ -172,6 +173,7 @@ void searchLayers(){
   currentMove = sequence.get(0);
   currentMove.start();
   counter = 0;
+  delay(5000);
   }
   
 }

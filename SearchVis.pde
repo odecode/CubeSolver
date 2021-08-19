@@ -1,17 +1,21 @@
 class SearchVis{
   Solver solver;
+  int distance;
   Solver.Tree svtree;
   ArrayList<Point> points;
   ArrayList<Solver.Node> nodes;
   HashMap<Solver.Node, Point> nodeToPoint;
   HashMap<Point, Solver.Node> pointToNode;
+  HashMap<Integer, Integer> layersize;
   
   SearchVis(Solver s){
     this.solver = s;
+    distance = 100;
     this.points = new ArrayList<Point>();
     this.nodes = new ArrayList<Solver.Node>();
     nodeToPoint = new HashMap<Solver.Node, Point>();
     pointToNode = new HashMap<Point, Solver.Node>();
+    layersize = new HashMap<Integer, Integer>();
     
   }
   
@@ -22,7 +26,7 @@ class SearchVis{
     float x;
     float y;
     float degree;
-    int pointWidth = 50;
+    int pointWidth = 20;
     int pointColor;
     int depth;
     Point(float xin, float yin, int clr, Point p, int depthIn){
@@ -52,7 +56,7 @@ class SearchVis{
       }
       else if(p.depth == 1){
       
-      int distance = 150;
+      distance = 250;
       //p.degree = degree;
       p.x = distance*cos(degree);
       p.y = distance*sin(degree);
@@ -61,13 +65,33 @@ class SearchVis{
       this.points.add(p);
       }
       else if(p.depth > 1){
-        int distance = 550;
+        distance = p.depth*300;
         Point parent = p.parent; //<>//
+        int lsize = layersize.get(p.depth);
+        p.x = distance*cos(degree);
+        p.y = distance*sin(degree);
+        degree += 360.0/lsize;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        /*
         float pdeg = parent.degree;
-        p.degree = parent.degree - 60.0 + degree;
+        p.degree = parent.degree + 300.0 + degree;
         p.x = distance*cos(p.degree)+parent.x;
         p.y = distance*sin(p.degree)+parent.y;
-        degree += 30;
+        degree += 12;
+        */
         this.points.add(p);
       }
     }
@@ -85,6 +109,7 @@ class SearchVis{
       
       nodes.add(n);
     }
+    layersize.put(nodesIn.get(0).depth,nodesIn.size());
     calcPointParents();
     calculateCoordinates(nodesIn);
   }
@@ -112,13 +137,18 @@ class SearchVis{
   }// end drawTree
   
   ArrayList<Point> drawCurrentPath(Solver.Node currentNode){
-    for(Point p:this.points){p.pointColor=255;}
+    for(Point p:this.points){p.pointColor=255; p.pointWidth=20;}
+    Point cur = nodeToPoint.get(currentNode);
+    cur.pointColor=0;
+    cur.pointWidth=60;
     
+    /*
     while(currentNode.depth > 0){
       Point cur = nodeToPoint.get(currentNode);
       cur.pointColor=(0);
+      cur.pointWidth=60;
       currentNode = currentNode.parent;
-    }
+    }*/
     
     
     return this.points;
