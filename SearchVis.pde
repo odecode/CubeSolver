@@ -113,16 +113,17 @@ class SearchVis{
   
   ArrayList<Point> drawCurrentPath(Solver.Node currentNode){
     for(Point p:this.points){p.pointColor=255; p.pointWidth=15;} //<>//
-    
+    ArrayList<Point> path = new ArrayList<Point>();
     while(currentNode.depth > 0){
       Point cur = nodeToPoint.get(currentNode);
       cur.pointColor=(0);
-      cur.pointWidth=100;
+      cur.pointWidth=50;
+      path.add(cur);
       currentNode = currentNode.parent;
     }
     
     
-    return this.points;
+    return path;
   
   }
 }

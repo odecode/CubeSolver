@@ -153,9 +153,26 @@ void searchLayers(){
           layerindex = layers.size();
         }
         else{
+          fill(0);
+          circle(0,0,50);
+          ArrayList<SearchVis.Point> tree = sv.drawTree();
           ArrayList<SearchVis.Point> points = sv.drawCurrentPath(n);
+          for(SearchVis.Point p : tree){
+            fill(p.pointColor);
+            circle(p.x,p.y,p.pointWidth);
+          }
           for(SearchVis.Point p : points){
             //println("for sv.point p in points");
+            if(p.depth == 1){
+              stroke(0);
+              strokeWeight(50);
+              line(p.x,p.y,0,0);
+            }
+            if(p.depth > 1){
+              stroke(0);
+              strokeWeight(50);
+              line(p.x,p.y,p.parent.x,p.parent.y);
+            }
             fill(p.pointColor);
             circle(p.x,p.y,p.pointWidth);
           }
@@ -173,6 +190,7 @@ void searchLayers(){
   currentMove = sequence.get(0);
   currentMove.start();
   counter = 0;
+  delay(5000);
   }
   
 }
