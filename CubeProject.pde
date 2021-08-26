@@ -160,6 +160,14 @@ void searchLayers(){
           for(SearchVis.Point p : tree){
             fill(p.pointColor);
             circle(p.x,p.y,p.pointWidth);
+            if(p.depth>1){
+            float parentx = p.parent.x;
+            float parenty = p.parent.y;
+            strokeWeight(1);
+            stroke(255);
+            line(p.x,p.y,parentx,parenty);
+            }
+            
           }
           for(SearchVis.Point p : points){
             //println("for sv.point p in points");
