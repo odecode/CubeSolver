@@ -30,13 +30,15 @@ void keyPressed() {
   // applyMove(key);
   
   else if(key == 'p'){
-    sequence.clear(); //<>//
+    solving = !solving;
     solver = new Solver();
-    sequence = solver.solveBruteForce(cube);
-    println("Solution is "+sequence.size()+" moves");
-    currentMove = sequence.get(0);
-    currentMove.start();
-    counter = 0;
+    sequence.clear();
+    reachedSearchStage = false;
+  layerindex = 0;
+  layernodeindex = 0;
+  layers.clear();
+  tree = solver.initializeTree(cube);
+    
   }
   
   else if(key == '2'){
@@ -47,7 +49,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '3'){
@@ -58,7 +60,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '4'){
@@ -69,7 +71,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
   else if(key == '5'){
@@ -80,7 +82,7 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+    //print(solved);
   }
   
     else if(key == '6'){
@@ -91,7 +93,17 @@ void keyPressed() {
     currentMove.start();
     counter = 0;
     boolean solved = t.isSolved(cube);
-    print(solved);
+   // print(solved);
+  }
+  else if(key == 'x'){
+    Solver.Tree t = solver.initializeTree(cube);
+    t.generateChildren(t.root,cube);
+    ArrayList<Solver.Node> leaves = new ArrayList<Solver.Node>();
+    leaves = t.getLeaves(t.root,leaves);
+    for(Solver.Node n : leaves){
+     println(n.leaf); 
+    }
+    println(leaves.size());
   }
   
 

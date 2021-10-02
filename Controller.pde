@@ -26,7 +26,7 @@ class Controller{
   }
  
   ArrayList<Move> unscramble(){
-    return unScrambleList;  //<>//
+    return unScrambleList; 
   }
 
 

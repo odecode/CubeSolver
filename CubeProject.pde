@@ -8,7 +8,7 @@ int dim = 3;
 Cube cube = new Cube(3);
 Controller cont = new Controller();
 Solver solver;
-
+SearchVis sv;
 Test t = new Test();
 Move[] allMoves = new Move[] {
   new Move(0, 1, 0, 1), 
@@ -24,26 +24,34 @@ Move[] allMoves = new Move[] {
   new Move(0, 0, -1, 1), 
   new Move(0, 0, -1, -1) 
 };
-
 ArrayList<Move> sequence = new ArrayList<Move>();
 int counter = 0;
 boolean scramb = false;
-
+boolean solving = false;
+boolean startedAlgorithm = false;
 boolean started = false;
-
+int layerindex;
+int layernodeindex;
+boolean reachedSearchStage;
+ArrayList<Solver.Layer> layers;
+Solver.Tree tree;
 Move currentMove;
 
 void setup() {
-  size(600, 600, P3D);
+  fullScreen(P3D);
+  //size(800, 800, P3D);
   //fullScreen(P3D);
   cam = new PeasyCam(this, 400);
- 
   solver = new Solver();
+  reachedSearchStage = false;
+  layerindex = 0;
+  layernodeindex = 0;
+  layers = new ArrayList<Solver.Layer>();
+  tree = solver.initializeTree(cube);
 }
 
-void draw() {
-  background(51); 
-
+void drawCube(){
+  strokeWeight(1);
   cam.beginHUD();
   fill(255);
   textSize(32);
@@ -52,9 +60,7 @@ void draw() {
   rotateX(-0.5);
   rotateY(0.4);
   rotateZ(0.1);
-
-  scale(50);
-  if(currentMove != null){
+if(currentMove != null){
      currentMove.update(cube);
   if (currentMove.finished()) {
     if (counter < sequence.size()-1) {
@@ -85,5 +91,137 @@ void draw() {
      pop();
    }
  }
- 
+
+}
+
+void solvebruteforce(){
+  solver.solveBruteForce(cube);
+}
+
+void generateLayers(){
+    int maxdepth = 2;
+    if(layerindex == maxdepth){
+    reachedSearchStage=true;
+    layerindex=99;
+    }
+    
+      if(layerindex==0){
+          Solver.Layer l = tree.generateLayer(cube, tree.root);
+          sv = solver.sv;
+          layers.add(l);
+          sv.drawTree();   
+      }
+      else{
+        int index = layers.size()-1;
+        Solver.Layer l = tree.generateLayer(layers.get(index), cube);
+        layers.add(l); //<>//
+        ArrayList<SearchVis.Point> treePoints = sv.drawTree(); //<>//
+        for(SearchVis.Point point : treePoints){
+          fill(point.pointColor);
+          circle(point.x, point.y, point.pointWidth);
+        }
+      }
+   layerindex++;     
+ }     
+
+void searchLayers(){
+  Solver.Layer layer = layers.get(layerindex);
+  boolean solved = false;
+  Solver.Node n = layer.nodes.get(layernodeindex);
+      
+        solved = t.isSolved(n.nodePair.cube);
+        if(solved){
+          println("solved");
+          ArrayList<Solver.Node> solutionNodes = new ArrayList<Solver.Node>();
+          while(n.depth > 0){
+            //println(n);
+            solutionNodes.add(n);
+            if(n.parent != null){
+            n = n.parent;            
+            }
+          }
+         
+          for(int i = solutionNodes.size()-1; i>=0; i--){
+            sequence.add(solutionNodes.get(i).nodePair.move);
+            println("sequence size: "+sequence.size());
+          }
+          for(Solver.Node finalNode : layers.get(0).nodes){
+            if(finalNode.children.contains(n)){
+              sequence.add(0,finalNode.nodePair.move);
+            }
+          }
+          layerindex = layers.size();
+        }
+        else{
+          fill(0);
+          circle(0,0,50);
+          ArrayList<SearchVis.Point> tree = sv.drawTree();
+          ArrayList<SearchVis.Point> points = sv.drawCurrentPath(n);
+          for(SearchVis.Point p : tree){
+            fill(p.pointColor);
+            circle(p.x,p.y,p.pointWidth);
+            if(p.depth>1){
+            float parentx = p.parent.x;
+            float parenty = p.parent.y;
+            strokeWeight(1);
+            stroke(255);
+            line(p.x,p.y,parentx,parenty);
+            }
+            
+          }
+          for(SearchVis.Point p : points){
+            //println("for sv.point p in points");
+            if(p.depth == 1){
+              stroke(0);
+              strokeWeight(50);
+              line(p.x,p.y,0,0);
+            }
+            if(p.depth > 1){
+              stroke(0);
+              strokeWeight(50);
+              line(p.x,p.y,p.parent.x,p.parent.y);
+            }
+            fill(p.pointColor);
+            circle(p.x,p.y,p.pointWidth);
+          }
+        }
+  //println(layernodeindex);     
+  layernodeindex++;
+  if(layernodeindex == layer.nodes.size()-1){
+  layerindex++;
+  layernodeindex = 0;
+  //println(layerindex);
+  }
+  if(layerindex == layers.size()){
+  println("finishing search");
+  solving=false;
+  currentMove = sequence.get(0);
+  currentMove.start();
+  counter = 0;
+  delay(5000);
+  }
+  
+}
+
+
+void draw() {
+  background(51); 
+  if(solving){
+    scale(0.15);
+    //scale(0.003);
+    //cam.setDistance(600);
+    stroke(219);
+    strokeWeight(0.1);
+    if(!reachedSearchStage){
+      generateLayers();
+    }
+    else{
+      if(layerindex > 90){layerindex=0;}
+      searchLayers();
+    }   
+   }
+    else{
+    scale(50);
+    drawCube();  
+  }
 }//end draw()
